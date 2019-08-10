@@ -6,7 +6,7 @@ export default class DataBase {
   }
 
   initDb() {
-    let db = new Dexie("planner")
+    let db = new Dexie("LessonPlannerV2")
     db.version(1).stores({
       strands: "id++, week",
       items: "id++, strand"
