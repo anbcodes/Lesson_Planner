@@ -65,6 +65,9 @@ export default {
     this.$bus.$on("dbItemUpdate", () => {
       this.getItems();
     });
+    this.$bus.$on("dbUpdate", () => {
+      this.getItems();
+    });
   },
 
   data: () => ({

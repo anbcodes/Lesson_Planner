@@ -22,17 +22,16 @@ export default class StrandHandler {
 
   addStrands(strands) {
     this.strands = strands
-    if (!this.times) {
-      this.shownStrands = this.createShownStrands()
-      this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
-      this.times = 1
-    }
+    this.shownStrands = this.createShownStrands()
+    this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
   }
   addSetCallback(callback) {
     this.set = callback
   }
   onOptionsUpdate() {
-    // this.shownStrands = this.createShownStrands()
+    this.shownStrands = this.createShownStrands()
+    this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
+
   }
 
   createShownStrands() {

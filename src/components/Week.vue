@@ -4,6 +4,7 @@
     <template v-if="strandsLoaded">
       <template v-for="value in $dayHandler.shownStrands">
         <v-flex centered v-if="value.show" :key="value.strand.id" mx-1>
+          {{console.log("In", week)}}
           <strand :strand="value.strand" :week="week" />
         </v-flex>
       </template>
@@ -35,26 +36,39 @@ export default {
       this.$nextTick(() => {
         this.strandsLoaded = false;
         this.getStrands();
+        this.$forceUpdate();
       });
     });
     this.$bus.$on("dbStrandUpdate", () => {
       this.getStrands();
+      this.$forceUpdate();
     });
   },
   data: () => ({
     shownDays: [],
     shownDaysFiltered: [],
     strands: [],
-    strandsLoaded: false
+    strandsLoaded: false,
+    console: console
   }),
   methods: {
     async getStrands() {
+      console.log(this.week);
       let strands = await this.$db.getStrands(this.week);
       this.strands = strands;
       this.$dayHandler.addStrands(strands);
       this.$dayHandler.onOptionsUpdate();
 
       this.strandsLoaded = true;
+    }
+  },
+  watch: {
+    week: {
+      handler() {
+        this.$forceUpdate();
+      },
+      immediate: true,
+      deep: true
     }
   }
 };

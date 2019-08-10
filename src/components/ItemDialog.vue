@@ -56,6 +56,8 @@ export default {
       if (closeWithSave) {
         await this.$db.putItem(this.itemToSave);
         this.$bus.$emit("dbItemUpdate");
+        this.$bus.$emit("dbStrandUpdate");
+        this.$bus.$emit("dbUpdate");
       }
     },
     async removeItem() {

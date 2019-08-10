@@ -17,13 +17,13 @@ export default class DataBase {
   async getStrands(week) {
     let strands = await this.db.strands.where({ week: week }).toArray()
     let toPut = []
-    if (strands.length != 6) {
+    if (strands.length < 6) {
       for (let x = 0; x < 6; x++) {
         toPut.push({ week: week, strandName: this.strandName[x], itemOrder: [] })
       }
       await this.db.strands.bulkPut(toPut)
+      strands = await this.getStrands(week)
     }
-    strands = await this.db.strands.where({ week: week }).toArray()
     return strands
   }
 
