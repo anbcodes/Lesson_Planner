@@ -4,7 +4,6 @@
     <template v-if="strandsLoaded">
       <template v-for="value in $dayHandler.shownStrands">
         <v-flex centered v-if="value.show" :key="value.strand.id" mx-1>
-          {{console.log("In", week)}}
           <strand :strand="value.strand" :week="week" />
         </v-flex>
       </template>
@@ -48,12 +47,10 @@ export default {
     shownDays: [],
     shownDaysFiltered: [],
     strands: [],
-    strandsLoaded: false,
-    console: console
+    strandsLoaded: false
   }),
   methods: {
     async getStrands() {
-      console.log(this.week);
       let strands = await this.$db.getStrands(this.week);
       this.strands = strands;
       this.$dayHandler.addStrands(strands);
