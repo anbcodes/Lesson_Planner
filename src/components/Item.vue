@@ -29,7 +29,7 @@
 
         <v-flex shrink>
           <v-layout>
-            <v-flex shrink>
+            <!-- <v-flex shrink>
               <v-checkbox
                 color="white"
                 :input-value="item.completed"
@@ -37,7 +37,7 @@
                 @touchstart.stop
                 @click.stop="update({...item, completed:!item.completed})"
               />
-            </v-flex>
+            </v-flex>-->
             <v-flex shrink>
               <div :class="`font-weight-bold subtitle-2 ${item.color}--text text--lighten-5`">
                 {{item.name}}
