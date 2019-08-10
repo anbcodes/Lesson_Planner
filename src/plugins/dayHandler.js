@@ -1,10 +1,10 @@
 // let localStorage = {
 //   storage: {
 //     options: {
-//       showCommunityDay: false,
-//       communityDay: "Wednesday",
+//       showCommunityStrand: false,
+//       communityStrand: "Wednesstrand",
 //       showWeekends: false,
-//       startWithCommunityDay: true
+//       startWithCommunityStrand: true
 //     }
 //   },
 //   getItem(name) {
@@ -14,149 +14,129 @@
 //     this.storage[name] = value
 //   }
 // }
-export default class DayHandler {
+export default class StrandHandler {
   constructor() {
-    this.week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    this.strandNames = ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"]
+    this.times = 0
   }
 
-  addDays(days) {
-    this.days = days
-    this.shownDays = this.createShownDays()
-    this.updatedShownDays = this.createShownDays()
+  addStrands(strands) {
+    this.strands = strands
+    if (!this.times) {
+      this.shownStrands = this.createShownStrands()
+      this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
+      this.times = 1
+    }
   }
   addSetCallback(callback) {
     this.set = callback
   }
   onOptionsUpdate() {
-    let options = JSON.parse(localStorage.getItem("options")) || { showWeekends: true, showCommunityDay: true, communityDay: "Monday", startWithCommunityDay: false }
-    this.shownDays = this.createShownDays()
-    if (!options.showWeekends) {
-      this.hide("Sunday")
-      this.hide("Saturday")
-    }
-    if (!options.showCommunityDay && options.communityDay) {
-      this.hide(options.communityDay)
-    }
-    if (options.startWithCommunityDay && options.communityDay) {
-      let order = this.createDayOrder(options.communityDay)
-      this.applyDayOrder(order)
-    }
-    this.setShowMobileDay()
+    // this.shownStrands = this.createShownStrands()
   }
 
-  createShownDays() {
-    let shownDays = []
-    for (let x = 0; x < 7; x++) {
-      shownDays.push({ day: this.getDayFromNameFromWeek(this.week[x]), show: true, showMobile: false })
+  createShownStrands() {
+    let shownStrands = []
+    for (let x = 0; x < 6; x++) {
+      shownStrands.push({ strand: this.getStrandFromNameFromWeek(this.strandNames[x]), show: true, showMobile: false })
     }
-    return shownDays
+    return shownStrands
   }
-  getDayFromNameFromWeek(name) {
-    let dayOfWeek = `Can't find ${name} in ${JSON.stringify(this.days)}`
-    this.days.forEach(day => {
-      if (day.dayName === name) {
-        dayOfWeek = day
+  getStrandFromNameFromWeek(name) {
+    let strandOfWeek = `Can't find ${name} in ${JSON.stringify(this.strands)}`
+    this.strands.forEach(strand => {
+      if (strand.strandName === name) {
+        strandOfWeek = strand
       }
     })
-    return dayOfWeek
+    return strandOfWeek
   }
-  createDayOrder(start) {
-    let order = []
-    let i = this.week.indexOf(start)
-    for (let x = 0; x < 7; x++) {
-      order.push(this.week[i])
-      i++
-      if (i > 6) {
-        i = 0
-      }
-    }
-    return order
-  }
-  getDayFromName(dayName) {
-    let day = undefined
-    this.shownDays.forEach((shownDay) => {
-      if (shownDay.day.dayName === dayName) {
-        day = shownDay
+  getStrandFromName(strandName) {
+    let strand = undefined
+    this.shownStrands.forEach((shownStrand) => {
+      if (shownStrand.strand.strandName === strandName) {
+        strand = shownStrand
       }
     })
-    return day
+    return strand
   }
-  applyDayOrder(order) {
-    let newShownDays = JSON.parse(JSON.stringify(this.shownDays))
-    this.shownDays.forEach((shownDay, i) => {
-      newShownDays[i] = this.getDayFromName(order[i])
+  applyStrandOrder(order) {
+    localStorage.setItem("strandOrder", JSON.stringify(order))
+    let newShownStrands = JSON.parse(JSON.stringify(this.shownStrands))
+    this.shownStrands.forEach((shownStrand, i) => {
+      newShownStrands[i] = this.getStrandFromName(order[i])
     })
-    this.shownDays = newShownDays
+    this.shownStrands = newShownStrands
   }
-  show(day) {
-    this.getDayFromName(day).show = true
+  show(strand) {
+    this.getStrandFromName(strand).show = true
   }
-  hide(day) {
-    this.getDayFromName(day).show = false
+  hide(strand) {
+    this.getStrandFromName(strand).show = false
   }
-  setShowMobileDay() {
-    if (localStorage.getItem("mobileDay")) {
-      this.getDayFromName(localStorage.getItem("mobileDay")).showMobile = true
-      return
-    }
-    let x = 0
-    this.shownDays.forEach((shownDay, i) => {
-      if (shownDay.show && x === 0) {
-        x = 1
-        this.shownDays[i].showMobile = true
-      }
-    })
-  }
-  getNextShownDayUp(dayName) {
+  getNextShownStrandUp(strandName) {
     let x = 0
     while (x === 0) {
-      dayName = this.getNextDay(dayName)
-      if (this.getDayFromName(dayName).show) {
+      strandName = this.getNextStrand(strandName)
+      if (this.getStrandFromName(strandName).show) {
         x = 1
-        return dayName
+        return strandName
       }
     }
   }
-  getNextShownDayDown(dayName) {
+  getNextShownStrandDown(strandName) {
     let x = 0
     while (x === 0) {
-      dayName = this.getPreviousDay(dayName)
-      if (this.getDayFromName(dayName).show) {
+      strandName = this.getPreviousStrand(strandName)
+      if (this.getStrandFromName(strandName).show) {
         x = 1
-        return dayName
+        return strandName
       }
     }
   }
-  getNextDay(dayName) {
-    let index = this.shownDays.indexOf(this.getDayFromName(dayName))
-    if (index >= 6) {
+  getNextStrand(strandName) {
+    let index = this.shownStrands.indexOf(this.getStrandFromName(strandName))
+    if (index >= 5) {
       index = -1
     }
-    return this.shownDays[index + 1].day.dayName
+    return this.shownStrands[index + 1].strand.strandName
   }
 
-  getPreviousDay(dayName) {
-    let index = this.shownDays.indexOf(this.getDayFromName(dayName))
+  getPreviousStrand(strandName) {
+    let index = this.shownStrands.indexOf(this.getStrandFromName(strandName))
     if (index <= 0) {
-      index = 7
+      index = 6
     }
-    return this.shownDays[index - 1].day.dayName
+    return this.shownStrands[index - 1].strand.strandName
   }
 
-  moveMobileShowDayUp() {
-    let day = this.shownDays.filter(v => { return v.showMobile })[0]
-    day.showMobile = false
-    let nextDayName = this.getNextShownDayUp(day.dayName)
-    let nextDay = this.getDayFromName(nextDayName)
-    nextDay.showMobile = true
+  moveShownStrandUp(strandName) {
+    let strandOrder = JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"]
+    let index = strandOrder.indexOf(strandName);
+    delete strandOrder[index];
+    if (index === 0) {
+      strandOrder.push(strandName);
+    } else {
+      strandOrder.splice(index - 1, 0, strandName);
+    }
+
+    strandOrder = strandOrder.filter(v => v)
+    this.applyStrandOrder(strandOrder)
   }
 
-  moveMobileShowDayDown() {
-    let day = this.shownDays.filter(v => { return v.showMobile })[0]
-    day.showMobile = false
-    let previousDayName = this.getNextShownDayDown(day.dayName)
-    let previousDay = this.getDayFromName(previousDayName)
-    localStorage.setItem("mobileDay", previousDay.day.dayName)
-    previousDay.showMobile = true
+  moveShownStrandDown(strandName) {
+    let strandOrder = JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"]
+
+    let index = strandOrder.indexOf(strandName);
+    delete strandOrder[index];
+    if (index === strandOrder.length - 1) {
+      strandOrder.splice(0, 0, strandName);
+    } else {
+      strandOrder.splice(index + 2, 0, strandName);
+    }
+
+    strandOrder = strandOrder.filter(v => v)
+
+    this.applyStrandOrder(strandOrder)
   }
 }

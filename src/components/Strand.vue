@@ -1,7 +1,17 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      {{day.dayName}}
+      <v-flex shrink>
+        <v-btn icon @click="moveStrandLeft()">
+          <v-icon>mdi-chevron-left</v-icon>
+        </v-btn>
+      </v-flex>
+      {{strand.strandName}}
+      <v-flex shrink>
+        <v-btn icon @click="moveStrandRight()">
+          <v-icon>mdi-chevron-right</v-icon>
+        </v-btn>
+      </v-flex>
       <v-flex shrink>
         <v-btn icon @click="createItemDialog = true">
           <v-icon>add</v-icon>
@@ -24,7 +34,7 @@
 
     <template v-if="itemsLoaded">
       <v-flex v-for="item in items" :key="item.id" ma-1>
-        <item :item="item" :day="day" />
+        <item :item="item" :strand="strand" />
       </v-flex>
     </template>
     <v-flex v-if="!itemsLoaded" ma-5 md12>
@@ -32,9 +42,9 @@
     </v-flex>
     <itemDialog
       v-model="createItemDialog"
-      :item="{name: 'New Item', time: 30, color: 'red', day:day.id}"
+      :item="{name: 'New Item', time: 30, color: 'red', strand:strand.id}"
       :create="true"
-      :day="day"
+      :strand="strand"
     />
   </v-card>
 </template>
@@ -47,7 +57,7 @@ export default {
     ItemDialog
   },
   props: {
-    day: Object,
+    strand: Object,
     week: Number
   },
   created() {
@@ -59,13 +69,12 @@ export default {
 
   data: () => ({
     numToDay: [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
+      "Logic",
+      "Grammer",
+      "Reasoning",
+      "Exposition",
+      "Debate",
+      "Research"
     ],
     itemsLoaded: false,
     items: [],
@@ -74,8 +83,16 @@ export default {
     totalTime: 0
   }),
   methods: {
+    async moveStrandLeft() {
+      this.$dayHandler.moveShownStrandUp(this.strand.strandName);
+      this.$bus.$emit("localStorageUpdate");
+    },
+    async moveStrandRight() {
+      this.$dayHandler.moveShownStrandDown(this.strand.strandName);
+      this.$bus.$emit("localStorageUpdate");
+    },
     async getItems() {
-      this.items = await this.$db.getItems(this.day);
+      this.items = await this.$db.getItems(this.strand);
       this.updateItemTotal();
       this.updateItemOrder();
       this.itemsLoaded = true;
@@ -93,19 +110,19 @@ export default {
       this.totalTime = totalTime;
     },
     updateItemOrder() {
-      if (!this.day.itemOrder) {
-        this.day.itemOrder = [];
+      if (!this.strand.itemOrder) {
+        this.strand.itemOrder = [];
       }
       this.items.forEach(item => {
-        if (!this.day.itemOrder.includes(item.id)) {
-          this.day.itemOrder.push(item.id);
+        if (!this.strand.itemOrder.includes(item.id)) {
+          this.strand.itemOrder.push(item.id);
         }
       });
       let reorderedItems = [];
       for (let x = 0; x < this.items.length; x++) {
         reorderedItems.push(
           this.items.filter(item => {
-            return this.day.itemOrder[x] === item.id;
+            return this.strand.itemOrder[x] === item.id;
           })[0]
         );
       }
@@ -113,7 +130,7 @@ export default {
     }
   },
   watch: {
-    day: {
+    strand: {
       handler() {
         this.getItems();
       },
