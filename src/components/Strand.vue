@@ -42,7 +42,7 @@
     </v-flex>
     <itemDialog
       v-model="createItemDialog"
-      :item="{name: 'New Item', time: 30, color: 'red', strand:strand.id}"
+      :item="{name: 'New Item', time: 30, color: 'red', strand:strand.id, notes: ''}"
       :create="true"
       :strand="strand"
     />
