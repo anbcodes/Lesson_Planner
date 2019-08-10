@@ -2,34 +2,33 @@ import Dexie from 'dexie'
 export default class DataBase {
   constructor() {
     this.db = this.initDb()
-    this.dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    this.strandName = ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"]
   }
 
   initDb() {
     let db = new Dexie("planner")
     db.version(1).stores({
-      days: "id++, week",
-      items: "id++, day"
+      strands: "id++, week",
+      items: "id++, strand"
     })
     return db
   }
 
-  async getDays(week) {
-    let days = await this.db.days.where({ week: week }).toArray()
+  async getStrands(week) {
+    let strands = await this.db.strands.where({ week: week }).toArray()
     let toPut = []
-    if (days.length != 7) {
-      for (let x = 0; x < 7; x++) {
-        toPut.push({ week: week, dayName: this.dayOfWeek[x], itemOrder: [] })
+    if (strands.length != 6) {
+      for (let x = 0; x < 6; x++) {
+        toPut.push({ week: week, strandName: this.strandName[x], itemOrder: [] })
       }
-      await this.db.days.bulkPut(toPut)
+      await this.db.strands.bulkPut(toPut)
     }
-    days = await this.db.days.where({ week: week }).toArray()
-    return days
+    strands = await this.db.strands.where({ week: week }).toArray()
+    return strands
   }
 
-  async putDay(day) {
-    delete day.item
-    this.db.days.put(day)
+  async putStrand(strand) {
+    this.db.strands.put(strand)
   }
 
   async putItem(item) {
@@ -40,8 +39,8 @@ export default class DataBase {
     this.db.items.delete(item.id)
   }
 
-  async getItems(day) {
-    let items = await this.db.items.where({ day: day.id }).toArray()
+  async getItems(strand) {
+    let items = await this.db.items.where({ strand: strand.id }).toArray()
     return items
 
   }

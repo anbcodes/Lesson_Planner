@@ -51,7 +51,7 @@
     </v-card-text>
 
     <!-- <v-card-actions></v-card-actions> -->
-    <itemDialog :item="item" v-model="editItemDialog" :day="day" :create="false" />
+    <itemDialog :item="item" v-model="editItemDialog" :strand="strand" :create="false" />
   </v-card>
 </template>
 <script>
@@ -61,7 +61,7 @@ export default {
   components: {
     ItemDialog
   },
-  props: { item: Object, day: Object },
+  props: { item: Object, strand: Object },
   data: () => ({
     pencil: mdiPencil,
     editItemDialog: false
@@ -73,58 +73,57 @@ export default {
     },
 
     async moveItemL() {
-      delete this.day.itemOrder[this.day.itemOrder.indexOf(this.item.id)];
-      this.day.itemOrder = this.removeEmpty(this.day.itemOrder);
+      delete this.strand.itemOrder[this.strand.itemOrder.indexOf(this.item.id)];
+      this.strand.itemOrder = this.removeEmpty(this.strand.itemOrder);
       this.$db.putItem({
         ...this.item,
-        day: this.$dayHandler.getDayFromName(
-          this.$dayHandler.getNextShownDayDown(this.day.dayName)
-        ).day.id
+        strand: this.$dayHandler.getStrandFromName(
+          this.$dayHandler.getNextShownStrandDown(this.strand.strandName)
+        ).strand.id
       });
-      this.$db.putDay(this.day);
-      this.$bus.$emit("dbDayUpdate");
+      this.$db.putStrand(this.strand);
+      this.$bus.$emit("dbStrandUpdate");
       this.$bus.$emit("dbItemUpdate");
     },
     async moveItemR() {
-      delete this.day.itemOrder[this.day.itemOrder.indexOf(this.item.id)];
-      this.day.itemOrder = this.removeEmpty(this.day.itemOrder);
+      delete this.strand.itemOrder[this.strand.itemOrder.indexOf(this.item.id)];
+      this.strand.itemOrder = this.removeEmpty(this.strand.itemOrder);
       this.$db.putItem({
         ...this.item,
-        day: this.$dayHandler.getDayFromName(
-          this.$dayHandler.getNextShownDayUp(this.day.dayName)
-        ).day.id
+        strand: this.$dayHandler.getStrandFromName(
+          this.$dayHandler.getNextShownStrandUp(this.strand.strandName)
+        ).strand.id
       });
-      this.$db.putDay(this.day);
-
-      this.$bus.$emit("dbDayUpdate");
+      this.$db.putStrand(this.strand);
+      this.$bus.$emit("dbStrandUpdate");
       this.$bus.$emit("dbItemUpdate");
     },
     async moveUp() {
-      let index = this.day.itemOrder.indexOf(this.item.id);
-      delete this.day.itemOrder[index];
+      let index = this.strand.itemOrder.indexOf(this.item.id);
+      delete this.strand.itemOrder[index];
       if (index === 0) {
-        this.day.itemOrder.push(this.item.id);
+        this.strand.itemOrder.push(this.item.id);
       } else {
-        this.day.itemOrder.splice(index - 1, 0, this.item.id);
+        this.strand.itemOrder.splice(index - 1, 0, this.item.id);
       }
 
-      this.day.itemOrder = this.removeEmpty(this.day.itemOrder);
+      this.strand.itemOrder = this.removeEmpty(this.strand.itemOrder);
 
-      this.$db.putDay(this.day);
-      this.$bus.$emit("dbDayUpdate");
+      this.$db.putStrand(this.strand);
+      this.$bus.$emit("dbStrandUpdate");
     },
     async moveDown() {
-      let index = this.day.itemOrder.indexOf(this.item.id);
+      let index = this.strand.itemOrder.indexOf(this.item.id);
 
-      delete this.day.itemOrder[index];
-      if (index === this.day.itemOrder.length - 1) {
-        this.day.itemOrder.splice(0, 0, this.item.id);
+      delete this.strand.itemOrder[index];
+      if (index === this.strand.itemOrder.length - 1) {
+        this.strand.itemOrder.splice(0, 0, this.item.id);
       } else {
-        this.day.itemOrder.splice(index + 2, 0, this.item.id);
+        this.strand.itemOrder.splice(index + 2, 0, this.item.id);
       }
-      this.day.itemOrder = this.removeEmpty(this.day.itemOrder);
+      this.strand.itemOrder = this.removeEmpty(this.strand.itemOrder);
 
-      this.$db.putDay(this.day);
+      this.$db.putStrand(this.strand);
       this.$bus.$emit("dbDayUpdate");
     },
     removeEmpty(array) {

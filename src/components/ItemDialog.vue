@@ -44,7 +44,7 @@ export default {
   props: {
     value: Boolean,
     item: Object,
-    day: Object,
+    strand: Object,
     create: Boolean
   },
   data: () => ({
@@ -59,11 +59,11 @@ export default {
       }
     },
     async removeItem() {
-      delete this.day.itemOrder[this.day.itemOrder.indexOf(this.item.id)];
-      this.day.itemOrder = this.removeEmpty(this.day.itemOrder);
+      delete this.strand.itemOrder[this.strand.itemOrder.indexOf(this.item.id)];
+      this.strand.itemOrder = this.removeEmpty(this.strand.itemOrder);
       await this.$db.removeItem(this.item);
       this.close(false);
-      this.$bus.$emit("dbDayUpdate");
+      this.$bus.$emit("dbStrandUpdate");
       this.$bus.$emit("dbItemUpdate");
     },
     removeEmpty(array) {

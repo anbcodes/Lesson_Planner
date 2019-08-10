@@ -1,30 +1,14 @@
 <template>
   <v-layout centered>
     <v-spacer />
-    <v-flex hidden-md-and-up>
-      <v-spacer />
-      <v-btn icon @click="$dayHandler.moveMobileShowDayDown()">
-        <v-icon>mdi-chevron-left</v-icon>
-      </v-btn>
-    </v-flex>
-    <template v-if="daysLoaded">
-      <template v-for="value in $dayHandler.shownDays">
-        <v-flex
-          centered
-          v-if="value.show && !($vuetify.breakpoint.smAndDown && value.showMobile)"
-          :key="value.id"
-          mx-1
-        >
-          <day :day="value.day" :week="week" />
+    <template v-if="strandsLoaded">
+      <template v-for="value in $dayHandler.shownStrands">
+        <v-flex centered v-if="value.show" :key="value.strand.id" mx-1>
+          <strand :strand="value.strand" :week="week" />
         </v-flex>
       </template>
     </template>
-    <v-flex hidden-md-and-up>
-      <v-btn icon @click="$dayHandler.moveMobileShowDayUp()">
-        <v-icon>mdi-chevron-right</v-icon>
-      </v-btn>
-    </v-flex>
-    <v-flex v-if="!daysLoaded" ma-5 md12>
+    <v-flex v-if="!strandsLoaded" ma-5 md12>
       <v-progress-linear indeterminate height="10"></v-progress-linear>
     </v-flex>
 
@@ -32,47 +16,45 @@
   </v-layout>
 </template>
 <script>
-import Day from "./Day";
+import Strand from "./Strand";
 
 export default {
   components: {
-    Day
+    Strand
   },
   props: {
     week: Number
   },
   created() {
-    this.getDays();
+    this.getStrands();
     this.$bus.$on("localStorageUpdate", () => {
       this.$dayHandler.onOptionsUpdate();
       this.$forceUpdate();
     });
     this.$bus.$on("dbUpdate", () => {
       this.$nextTick(() => {
-        this.daysLoaded = false;
-        this.getDays();
+        this.strandsLoaded = false;
+        this.getStrands();
       });
     });
-    this.$bus.$on("dbDayUpdate", () => {
-      this.getDays();
+    this.$bus.$on("dbStrandUpdate", () => {
+      this.getStrands();
     });
   },
   data: () => ({
     shownDays: [],
     shownDaysFiltered: [],
-    days: [],
-    daysLoaded: false,
-    showDayMobile: 0,
-    displayDays: []
+    strands: [],
+    strandsLoaded: false
   }),
   methods: {
-    async getDays() {
-      let days = await this.$db.getDays(this.week);
-      this.days = days;
-      this.$dayHandler.addDays(days);
+    async getStrands() {
+      let strands = await this.$db.getStrands(this.week);
+      this.strands = strands;
+      this.$dayHandler.addStrands(strands);
       this.$dayHandler.onOptionsUpdate();
 
-      this.daysLoaded = true;
+      this.strandsLoaded = true;
     }
   }
 };
