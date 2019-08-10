@@ -21,13 +21,13 @@
     <v-flex v-if="totalTime > 0" mx-1>
       <v-progress-linear
         :value="timeDone/totalTime*100"
-        :color="items[0].color"
+        :color="barColor"
         height="25"
         reactive
         rounded
       >
         <template v-slot="{ value }">
-          <strong>{{timeDone}}min done {{totalTime-timeDone}}min left</strong>
+          <strong>{{timeDone}}min used {{totalTime-timeDone}}min left</strong>
         </template>
       </v-progress-linear>
     </v-flex>
@@ -99,12 +99,9 @@ export default {
     },
     updateItemTotal() {
       let timeDone = 0;
-      let totalTime = 0;
+      let totalTime = 55;
       this.items.forEach(item => {
-        if (item.completed) {
-          timeDone += Number(item.time);
-        }
-        totalTime += Number(item.time);
+        timeDone += Number(item.time);
       });
       this.timeDone = timeDone;
       this.totalTime = totalTime;
@@ -136,6 +133,15 @@ export default {
       },
       immediate: true,
       deep: true
+    }
+  },
+  computed: {
+    barColor() {
+      if (this.items[0]) {
+        return this.items[0].color;
+      } else {
+        return "white";
+      }
     }
   }
 };
