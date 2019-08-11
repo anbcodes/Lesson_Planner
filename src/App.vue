@@ -8,7 +8,7 @@
           </v-btn>
         </v-flex>-->
         <v-flex>
-          <v-btn icon @mouseenter="prepareDownload()" @click="download">
+          <v-btn icon @click="download">
             <v-icon>save</v-icon>
           </v-btn>
         </v-flex>
@@ -28,7 +28,7 @@
 <script>
 import Topbar from "./components/TopBar";
 import Week from "./components/Week";
-import * as jsPDF from "jspdf";
+
 export default {
   name: "App",
   components: {
@@ -50,82 +50,47 @@ export default {
     downloadHref: ""
   }),
   methods: {
-    async prepareDownload() {
-      this.jsp = new jsPDF({
-        orientation: "p",
-        unit: "mm",
-        format: "letter",
-        putOnlyUsedFonts: true
-      });
-      let pdf = [];
+    async download() {
+      let pdf = document.createElement("div");
+      let weekName = document.createElement("h1");
+      weekName.align = "center";
+      weekName.innerText = this.expandedWeek;
+      pdf.appendChild(weekName);
       let strands = await this.$db.getStrands(this.week);
       for (let x = 0; x < strands.length; x++) {
         let strand = strands[x];
         let items = await this.$db.getItems(strand);
-        pdf.push({
-          text: strand.strandName,
-          size: 20,
-          type: "bold",
-          indent: 0,
-          space: 1,
-          align: "center"
-        });
+        let strandText = document.createElement("h2");
+        strandText.innerText = strand.strandName;
+        strandText.align = "center";
+        pdf.appendChild(strandText);
         for (let y = 0; y < items.length; y++) {
           let item = items[y];
-          pdf.push({
-            text: `${item.name} (${item.time}min)`,
-            size: 15,
-            type: "bold",
-            indent: 1,
-            space: 1
-          });
-          pdf.push({
-            text: `${item.notes}`,
-            size: 15,
-            type: "",
-            indent: 1.5,
-            space: 1
-          });
-        }
-      }
-      let downPage = 40;
-      this.jsp.setFontSize(25);
-      this.jsp.setFontStyle("bold");
-      this.jsp.text(this.expandedWeek, 215.9 / 2, 10, { align: "center" });
+          let itemNameTime = document.createElement("h3");
+          itemNameTime.innerText = `${item.name} (${item.time}min)`;
+          // itemNameTime.align = "center";
 
-      for (let x = 0; x < pdf.length; x++) {
-        let pdfMultilinelen =
-          pdf[x].text.split("\n").length > 0
-            ? pdf[x].text.split("\n").length * pdf[x].size
-            : 0;
-        if (downPage > 280 - pdfMultilinelen) {
-          this.jsp.addPage();
-          downPage = 40;
-          this.jsp.setFontSize(25);
-          this.jsp.setFontStyle("bold");
-          this.jsp.text(this.expandedWeek, 215.9 / 2, 10, { align: "center" });
+          pdf.appendChild(itemNameTime);
+          let notes = document.createElement("div");
+
+          notes.innerHTML = item.notes;
+          pdf.appendChild(notes);
         }
-        this.jsp.setFontSize(pdf[x].size);
-        this.jsp.setFontStyle(pdf[x].type);
-        this.jsp.text(
-          pdf[x].text,
-          pdf[x].align ? 215.9 / 2 : Math.floor(10 + 10 * pdf[x].indent),
-          downPage,
-          { align: pdf[x].align || "left" }
-        );
-        pdfMultilinelen =
-          pdf[x].text.split("\n").length > 0
-            ? pdf[x].text.split("\n").length * pdf[x].size
-            : 0;
-        downPage += pdf[x + 1]
-          ? pdf[x + 1].space
-            ? Math.floor(pdf[x + 1].space / 1.5 + pdfMultilinelen)
-            : Math.floor(pdf[x + 1].size / 1.5 + pdfMultilinelen)
-          : 10;
       }
-    },
-    download() {
-      this.jsp.output("save", "Challange Lesson Plan.pdf");
+      let pdfFrame = document.createElement("iframe");
+      pdfFrame.onload = () => {
+        pdfFrame.contentDocument.body.appendChild(pdf);
+        pdfFrame.contentWindow.focus();
+        pdfFrame.contentWindow.print();
+        pdfFrame.remove();
+      };
+      document.body.appendChild(pdfFrame);
+
+      // this.jsp.html(pdf, {
+      //   callback: () => {
+      //     this.jsp.save();
+      //   }
+      // });
     }
   },
   computed: {
