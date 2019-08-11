@@ -67,7 +67,8 @@ export default {
           size: 20,
           type: "bold",
           indent: 0,
-          space: 1
+          space: 1,
+          align: "center"
         });
         for (let y = 0; y < items.length; y++) {
           let item = items[y];
@@ -87,7 +88,10 @@ export default {
           });
         }
       }
-      let downPage = 10;
+      let downPage = 40;
+      this.jsp.setFontSize(25);
+      this.jsp.setFontStyle("bold");
+      this.jsp.text(this.expandedWeek, 215.9 / 2, 10, { align: "center" });
 
       for (let x = 0; x < pdf.length; x++) {
         let pdfMultilinelen =
@@ -96,14 +100,18 @@ export default {
             : 0;
         if (downPage > 280 - pdfMultilinelen) {
           this.jsp.addPage();
-          downPage = 10;
+          downPage = 40;
+          this.jsp.setFontSize(25);
+          this.jsp.setFontStyle("bold");
+          this.jsp.text(this.expandedWeek, 215.9 / 2, 10, { align: "center" });
         }
         this.jsp.setFontSize(pdf[x].size);
         this.jsp.setFontStyle(pdf[x].type);
         this.jsp.text(
           pdf[x].text,
-          Math.floor(10 + 10 * pdf[x].indent),
-          downPage
+          pdf[x].align ? 215.9 / 2 : Math.floor(10 + 10 * pdf[x].indent),
+          downPage,
+          { align: pdf[x].align || "left" }
         );
         pdfMultilinelen =
           pdf[x].text.split("\n").length > 0
@@ -118,6 +126,20 @@ export default {
     },
     download() {
       this.jsp.output("save", "Challange Lesson Plan.pdf");
+    }
+  },
+  computed: {
+    expandedWeek() {
+      let challenges = ["A", "B", "1", "2", "3", "4"];
+      let challenge = challenges[Math.floor((this.week - 1) / 30)];
+      let weekTo30 = ((this.week - 1) % 30) + 1;
+      let weekTo15 = weekTo30 > 15 ? weekTo30 - 15 : weekTo30;
+      let semester = weekTo30 > 15 ? 2 : 1;
+      if (this.$vuetify.breakpoint.smAndDown) {
+        return `Chall. ${challenge}, Week ${weekTo15}, Sem. ${semester}`;
+      } else {
+        return `Challenge ${challenge}, Week ${weekTo15}, Semester ${semester}`;
+      }
     }
   }
 };
