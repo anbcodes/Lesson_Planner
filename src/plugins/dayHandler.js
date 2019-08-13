@@ -25,9 +25,6 @@ export default class StrandHandler {
     this.shownStrands = this.createShownStrands()
     this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
   }
-  addSetCallback(callback) {
-    this.set = callback
-  }
   onOptionsUpdate() {
     this.shownStrands = this.createShownStrands()
     this.applyStrandOrder(JSON.parse(localStorage.getItem("strandOrder")) || ["Logic", "Grammer", "Reasoning", "Exposition", "Debate", "Research"])
