@@ -1,25 +1,29 @@
 <template>
   <v-app>
     <v-app-bar app>
-      <v-layout>
-        <!-- <v-flex>
-          <v-btn icon @click="options.drawer = !options.drawer">
-            <v-icon>fas fa-list</v-icon>
-          </v-btn>
-        </v-flex>-->
-        <v-flex>
-          <v-btn icon @click="download">
-            <v-icon>save</v-icon>
-          </v-btn>
-        </v-flex>
-        <v-flex>
-          <topbar v-model="week" />
-        </v-flex>
-        <v-spacer />
-      </v-layout>
+      <v-row>
+        <v-col mt-5>
+          <v-row>
+            <v-btn icon @click="download">
+              <v-icon>print</v-icon>
+            </v-btn>
+          </v-row>
+        </v-col>
+        <v-col mt-3>
+          <v-row>
+            <topbar v-model="week" />
+          </v-row>
+        </v-col>
+        <v-col>
+          <v-row justify="end">
+            <v-btn icon @click="clear">
+              <v-icon>close</v-icon>
+            </v-btn>
+          </v-row>
+        </v-col>
+      </v-row>
     </v-app-bar>
     <v-content>
-      <!-- <sidebar v-model="options" /> -->
       <week :week="week" />
     </v-content>
   </v-app>
@@ -36,7 +40,13 @@ export default {
     Week
   },
   created() {
-    this.$dayHandler.addSetCallback(this.$set);
+    if (!localStorage.getItem("tutorialDoneLesson")) {
+      if (confirm("Would you like the tutorial? You can't get it again.")) {
+        this.showTutorial();
+      } else {
+        localStorage.setItem("tutorialDoneLesson", "true");
+      }
+    }
   },
   data: () => ({
     week: Number(localStorage.getItem("selectedWeek")) || 1,
@@ -91,6 +101,108 @@ export default {
       //     this.jsp.save();
       //   }
       // });
+    },
+    async clear() {
+      if (
+        confirm(
+          "You are clearing all the items for this week. Click ok to continue."
+        )
+      ) {
+        for (let x = 0; x < this.$dayHandler.shownStrands.length; x++) {
+          let strand = this.$dayHandler.shownStrands[x].strand;
+          let items = await this.$db.getItems(strand);
+          for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            this.$db.removeItem(item);
+          }
+          for (let x = 0; x < this.$dayHandler.shownStrands.length; x++) {
+            await this.$db.removeStrand(
+              this.$dayHandler.shownStrands[x].strand
+            );
+          }
+        }
+        this.$bus.$emit("dbUpdate");
+      }
+    },
+    async showTutorial() {
+      localStorage.setItem("tutorialDoneLesson", "true");
+      let tutorialItems = [
+        {
+          name: "When you are done click the X to erase this week",
+          color: "blue",
+          time: 25,
+          notes: "You can never get the tutorial again",
+          strand: 5
+        },
+        {
+          name: "Click me to edit",
+          color: "red",
+          time: 30,
+          notes:
+            "You can use <strong>bold</strong> <i>italic</i> <ins>underline</ins> and <del>strikethrough</del> on the notes (these will show up when printed)",
+          strand: 2
+        },
+        {
+          name: "Use the up and down arrows to move me around (1)",
+          color: "red",
+          time: 30,
+          notes: "the order is kept when printing",
+          strand: 3
+        },
+        {
+          name: "Use the up and down arrows to move me around (2)",
+          color: "orange",
+          time: 30,
+          notes: "the order is kept when printing",
+          strand: 3
+        },
+        {
+          name: "Use the up and down arrows to move me around (3)",
+          color: "green",
+          time: 30,
+          notes: "the order is kept when printing",
+          strand: 3
+        },
+        {
+          name: "Use the up and down arrows to move me around (4)",
+          color: "light-blue",
+          time: 30,
+          notes: "the order is kept when printing",
+          strand: 3
+        },
+        {
+          name:
+            "Move me to the next or previous strand using the left and right arrows",
+          color: "indigo",
+          time: 30,
+          notes: "",
+          strand: 2
+        },
+        {
+          name: "Click on the sidebar in the top left to change some settings",
+          color: "purple",
+          time: 30,
+          notes: "",
+          strand: 1
+        },
+        {
+          name: "Click on the checkbox to mark a item as completed",
+          color: "lime",
+          time: 30,
+          notes: "",
+          strand: 1
+        }
+      ];
+      this.$dayHandler.addStrands(await this.$db.getStrands(this.week));
+
+      for (let x = 0; x < tutorialItems.length; x++) {
+        let item = tutorialItems[x];
+        item.strand = this.$dayHandler.shownStrands[item.strand].strand.id;
+        await this.$db.putItem(item);
+      }
+
+      this.$bus.$emit("dbItemUpdate");
+      this.$bus.$emit("dbStrandUpdate");
     }
   },
   computed: {

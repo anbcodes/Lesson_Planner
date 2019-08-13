@@ -30,7 +30,9 @@ export default class DataBase {
   async putStrand(strand) {
     this.db.strands.put(strand)
   }
-
+  async removeStrand(strand) {
+    this.db.strands.delete(strand.id)
+  }
   async putItem(item) {
     this.db.items.put(item)
   }
