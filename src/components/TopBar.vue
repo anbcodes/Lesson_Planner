@@ -1,26 +1,28 @@
 <template>
-  <v-layout>
-    <v-flex>
+  <v-row>
+    <v-col cols="1">
       <v-btn icon @click="downWeek()">
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
-    </v-flex>
+    </v-col>
     <v-spacer />
-    <v-flex>
-      <v-toolbar-title class="headline hidden-xs-only">
-        <span>{{expandedWeek}}</span>
-      </v-toolbar-title>
-      <v-toolbar-title class="subtilte-2 hidden-sm-and-up">
-        <span>{{expandedWeek}}</span>
-      </v-toolbar-title>
-    </v-flex>
+    <v-col mt-2 cols="8">
+      <v-row justify="center">
+        <v-toolbar-title class="headline hidden-xs-only">
+          <span>{{expandedWeek}}</span>
+        </v-toolbar-title>
+        <v-toolbar-title class="subtilte-2 hidden-sm-and-up">
+          <span>{{expandedWeek}}</span>
+        </v-toolbar-title>
+      </v-row>
+    </v-col>
     <v-spacer />
-    <v-flex>
+    <v-col cols="1">
       <v-btn icon @click="upWeek()">
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 <script>
 export default {
