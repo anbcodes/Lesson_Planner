@@ -46,5 +46,13 @@ export default class DataBase {
     return items
 
   }
+  async getItemsFromWeek(week) {
+    let strands = await this.db.strands.where({ week: week }).toArray()
+    let items = []
+    for (let x = 0; x < strands.length; x++) {
+      Array.prototype.push.apply(items, await this.db.items.where({ strand: strands[x].id }).toArray())
+    }
+    return items
 
+  }
 }
